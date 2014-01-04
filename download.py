@@ -16,7 +16,7 @@ try:
     from typing import Sequence
 except ImportError:
     # Hack in case mypy isn't available
-    import builtins.map as Sequence
+    from builtins import map as Sequence
 from lxml.html import HtmlElement
 
 USERNAME = 'tlevine'
@@ -110,8 +110,11 @@ def randomsleep():
 def main():
     s = Suhaila()
     for a in s.videoadmin():
-        for b in s.category(b):
+        print(a)
+        for b in s.category(a):
+            print(b)
             s.get(b, parse_html = False)
+            randomsleep()
 
 def test():
     import doctest
@@ -119,3 +122,4 @@ def test():
 
 if __name__ == '__main__':
     test()
+    main()
