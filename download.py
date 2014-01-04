@@ -10,10 +10,9 @@ from requests import session
 from lxml.html import fromstring
 
 # Typing
-import builtins
 from requests.sessions import Session
 from requests.models import Response
-from typing import Tuple
+from typing import Sequence
 from lxml.html import HtmlElement
 
 
@@ -60,6 +59,7 @@ class Suhaila:
 
     @staticmethod
     def cache(suhaila_url, func):
+        'func must take nothing and return bytes.'
         _, *middle, last = urlsplit(suhaila_url.rstrip('/?')).path.split('/')
 
         # If the final thing doesn't have an extension,
@@ -74,22 +74,31 @@ class Suhaila:
         if not os.path.exists(path):
             directory, _ = os.path.split(path)
             os.makedirs(directory, exist_ok = True)
-            open(path, 'x').write(func())
-        print(path)
-        return open(path).read()
+            open(path, 'xb').write(func())
+        return open(path, 'rb').read()
 
-    def get(self, href) -> HtmlElement:
-        raw = self.cache(href, lambda: self.s.get(url(href)).text)
-        return fromstring(raw)
+    def get(self, href, parse_html = True) -> HtmlElement:
+        'Download a URL, and optionally parse it as HTML.'
+        absolute_url = url(href)
+        if parse_html:
+            raw = self.cache(href, lambda: self.s.get(absolute_url).content)
+            html = fromstring(raw.decode('utf-8'))
+            html.make_links_absolute(absolute_url)
+            return html
+        else:
+            self.cache(href, lambda: self.s.get(absolute_url).content)
 
-    def videoadmin(self) -> builtins.map:
+    def videoadmin(self) -> Sequence:
         'Download and parse the /videoadmin page.'
         html = self.get('/videoadmin/')
         hrefs = map(str,html.xpath('//div[@class="conter"]/h4/a/@href'))
         return hrefs
 
-    def category(self) -> builtins.map:
+    def category(self, href) -> Sequence:
         'Download and parse a /videoadmin/category page.'
+        html = self.get(href)
+        return (x.replace('videoadmin/../', '') for x in
+                html.xpath('//a[contains(@href,".mp4")]/@href'))
 
 def randomsleep():
     'Sleep between zero and 100 seconds.'
@@ -97,9 +106,9 @@ def randomsleep():
 
 def main():
     s = Suhaila()
-    for href in s.videoadmin():
-        pass
-
+    for a in s.videoadmin():
+        for b in s.category(b):
+            s.get(b, parse_html = False)
 
 def test():
     import doctest
