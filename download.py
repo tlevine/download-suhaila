@@ -79,9 +79,13 @@ class Suhaila:
         return fromstring(raw)
 
     def videoadmin(self) -> builtins.map:
+        'Download and parse the /videoadmin page.'
         html = self.get('/videoadmin/')
         hrefs = map(str,html.xpath('//div[@class="conter"]/h4/a/@href'))
         return hrefs
+
+    def category(self) -> builtins.map:
+        'Download and parse a /videoadmin/category page.'
 
 def main():
     s = Suhaila()
