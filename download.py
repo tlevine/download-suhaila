@@ -12,9 +12,12 @@ from lxml.html import fromstring
 # Typing
 from requests.sessions import Session
 from requests.models import Response
-from typing import Sequence
+try:
+    from typing import Sequence
+except ImportError:
+    # Hack in case mypy isn't available
+    import builtins.map as Sequence
 from lxml.html import HtmlElement
-
 
 USERNAME = 'tlevine'
 PASSWORD = 'Onf5nVPgjyn3'
