@@ -62,7 +62,7 @@ class Suhaila:
 
     @staticmethod
     def cache(suhaila_url, func):
-        'func must take nothing and return bytes.'
+        'func must take nothing and returns an iterable of bytes.'
         _, *middle, last = urlsplit(suhaila_url.rstrip('/?')).path.split('/')
 
         # If the final thing doesn't have an extension,
@@ -77,19 +77,25 @@ class Suhaila:
         if not os.path.exists(path):
             directory, _ = os.path.split(path)
             os.makedirs(directory, exist_ok = True)
-            open(path, 'xb').write(func())
+            fp = open(path, 'xb')
+            for line in func():
+                fp.write(line)
         return open(path, 'rb').read()
 
     def get(self, href, parse_html = True) -> HtmlElement:
         'Download a URL, and optionally parse it as HTML.'
         absolute_url = url(href)
+
+        def download():
+            return self.s.get(absolute_url, stream = True).iter_content()
+
         if parse_html:
-            raw = self.cache(href, lambda: self.s.get(absolute_url).content)
+            raw = self.cache(href, download)
             html = fromstring(raw.decode('utf-8'))
             html.make_links_absolute(absolute_url)
             return html
         else:
-            self.cache(href, lambda: self.s.get(absolute_url).content)
+            self.cache(href, download)
 
     def videoadmin(self) -> Sequence:
         'Download and parse the /videoadmin page.'
@@ -109,6 +115,8 @@ def randomsleep():
 
 def main():
     s = Suhaila()
+    s.get('http://www.suhailaonlineclasses.com/videos/mp4/1120.mp4', parse_html = False)
+    return
     for a in s.videoadmin():
         print(a)
         for b in s.category(a):
