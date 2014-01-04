@@ -33,8 +33,6 @@ def url(href:str) -> str:
 
 class Suhaila:
     def __init__(self, suhaila = None, username = USERNAME, password = PASSWORD):
-        self._mkcache()
-
         if suhaila != None:
             # Use the existing session.
             # This is helpful for development
@@ -57,13 +55,6 @@ class Suhaila:
             self.s.post(url(action), data = data)
 
     @staticmethod
-    def _mkcache():
-        try:
-            os.mkdir('cache')
-        except OSError:
-            pass
-
-    @staticmethod
     def cache(suhaila_url, func):
         _, *middle, last = urlsplit(suhaila_url.rstrip('/?')).path.split('/')
 
@@ -77,7 +68,10 @@ class Suhaila:
         path = os.path.join(path_left, path_right)
 
         if not os.path.exists(path):
+            directory, _ = os.path.split(path)
+            os.makedirs(directory, exist_ok = True)
             open(path, 'x').write(func())
+        print(path)
         return open(path).read()
 
     def get(self, href) -> HtmlElement:
@@ -89,6 +83,15 @@ class Suhaila:
         hrefs = map(str,html.xpath('//div[@class="conter"]/h4/a/@href'))
         return hrefs
 
-if __name__ == '__main__':
+def main():
+    s = Suhaila()
+    for href in s.videoadmin():
+        pass
+
+
+def test():
     import doctest
     doctest.testmod()
+
+if __name__ == '__main__':
+    test()
