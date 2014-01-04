@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import os
+import re
 from urllib.parse import urlsplit
 
 from requests import session
 from lxml.html import fromstring
 
 # Typing
+import builtins
 from requests.sessions import Session
 from requests.models import Response
 from typing import Tuple
@@ -15,8 +17,18 @@ from lxml.html import HtmlElement
 USERNAME = 'tlevine'
 PASSWORD = 'Onf5nVPgjyn3'
 
-def url(absolute_href:str) -> str:
-    return 'http://www.suhailaonlineclasses.com' + absolute_href
+def url(href:str) -> str:
+    '''
+    >>> url('/videoadmin/category/suhaila-level-1.html')
+    http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html
+
+    >>> url('http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html')
+    http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html
+    '''
+    split = urlsplit(href)
+    split.scheme = 'http'
+    split.netloc = 'www.suhailaonlineclasses.com'
+    return split.geturl()
 
 class Suhaila:
     def __init__(self, suhaila = None, username = USERNAME, password = PASSWORD):
@@ -67,8 +79,11 @@ class Suhaila:
             open(path, 'x').write(func())
         return open(path).read()
 
-    def videoadmin(self):
-        href = '/videoadmin/'
+    def get(self, href) -> HtmlElement:
         raw = self.cache(href, lambda: self.s.get(url(href)).text)
-        html = fromstring(raw)
-        return html
+        return fromstring(raw)
+
+    def videoadmin(self) -> builtins.map:
+        html = self.get('/videoadmin/')
+        hrefs = map(str,html.xpath('//div[@class="conter"]/h4/a/@href'))
+        return hrefs
