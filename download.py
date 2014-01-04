@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
-from urllib.parse import urlsplit, ParseResult
+from urllib.parse import urlsplit, urlunsplit
 
 from requests import session
 from lxml.html import fromstring
@@ -20,16 +20,16 @@ PASSWORD = 'Onf5nVPgjyn3'
 def url(href:str) -> str:
     '''
     >>> url('/videoadmin/category/suhaila-level-1.html')
-    http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html
+    'http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html'
 
     >>> url('http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html')
-    http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html
+    'http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html'
     '''
-    _, _, path, params, query, fragment = urlsplit(href)
+    _, _, path, query, _ = urlsplit(href)
     scheme = 'http'
     netloc = 'www.suhailaonlineclasses.com'
-    ParseResult(scheme, netloc,
-    return split.geturl()
+    fragment = '' # The part after the hash sign, like http://example.com#this-section
+    return urlunsplit((scheme, netloc, path, query, fragment))
 
 class Suhaila:
     def __init__(self, suhaila = None, username = USERNAME, password = PASSWORD):
