@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, ParseResult
 
 from requests import session
 from lxml.html import fromstring
@@ -25,9 +25,10 @@ def url(href:str) -> str:
     >>> url('http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html')
     http://www.suhailaonlineclasses.com/videoadmin/category/suhaila-level-1.html
     '''
-    split = urlsplit(href)
-    split.scheme = 'http'
-    split.netloc = 'www.suhailaonlineclasses.com'
+    _, _, path, params, query, fragment = urlsplit(href)
+    scheme = 'http'
+    netloc = 'www.suhailaonlineclasses.com'
+    ParseResult(scheme, netloc,
     return split.geturl()
 
 class Suhaila:
@@ -87,3 +88,7 @@ class Suhaila:
         html = self.get('/videoadmin/')
         hrefs = map(str,html.xpath('//div[@class="conter"]/h4/a/@href'))
         return hrefs
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
