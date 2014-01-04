@@ -3,6 +3,9 @@ import os
 import re
 from urllib.parse import urlsplit, urlunsplit
 
+from time import sleep
+from random import betavariate
+
 from requests import session
 from lxml.html import fromstring
 
@@ -86,6 +89,10 @@ class Suhaila:
 
     def category(self) -> builtins.map:
         'Download and parse a /videoadmin/category page.'
+
+def randomsleep():
+    'Sleep between zero and 100 seconds.'
+    sleep(100 * betavariate(0.7, 8))
 
 def main():
     s = Suhaila()
