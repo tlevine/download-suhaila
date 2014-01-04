@@ -52,8 +52,17 @@ class Suhaila:
 
     @staticmethod
     def cache(suhaila_url, func):
-        _, *urlparts = urlsplit(suhaila_url.rstrip('/?')).path.split('/')
-        path = os.path.join('cache', *urlparts)
+        _, *middle, last = urlsplit(suhaila_url.rstrip('/?')).path.split('/')
+
+        # If the final thing doesn't have an extension,
+        # call it index.html inside the directory.
+        path_left = os.path.join('cache', *middle)
+        if '.' in last:
+            path_right = last
+        else:
+            path_right = os.path.join(last, 'index.html')
+        path = os.path.join(path_left, path_right)
+
         if not os.path.exists(path):
             open(path, 'x').write(func())
         return open(path).read()
