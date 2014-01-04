@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+
 from requests import session
 from lxml.html import fromstring
 
@@ -8,7 +10,6 @@ from requests.models import Response
 from typing import Tuple
 from lxml.html import HtmlElement
 
-s = session()
 
 USERNAME = 'tlevine'
 PASSWORD = 'Onf5nVPgjyn3'
@@ -16,17 +17,39 @@ PASSWORD = 'Onf5nVPgjyn3'
 def url(absolute_href:str) -> str:
     return 'http://www.suhailaonlineclasses.com' + absolute_href
 
-def login(username, password) -> Tuple[Session,Response]:
-    action = '/amember/member.php'
+class Suhaila:
+    def __init__(self, username, password):
+        self._mkcache()
 
-    r = s.get(url(action))
-    html = fromstring(r.text)
+        self.s = session()
+        action = '/amember/member.php'
 
-    names = map(str, html.xpath('//form[@action="/amember/login"]/descendant::input/@name'))
-    values = map(str, html.xpath('//form[@action="/amember/login"]/descendant::input/@value'))
-    data = dict(zip(names, values))
-    data['amember_login'] = username
-    data['amember_pass']  = password
+        r = self.s.get(url(action))
+        html = fromstring(r.text)
 
-    r = s.post(url(action), data = data)
-    return s,r
+        names = map(str, html.xpath('//form[@action="/amember/login"]/descendant::input/@name'))
+        values = map(str, html.xpath('//form[@action="/amember/login"]/descendant::input/@value'))
+        data = dict(zip(names, values))
+        data['amember_login'] = username
+        data['amember_pass']  = password
+
+        r = self.s.post(url(action), data = data)
+
+    @staticmethod
+    def _mkcache():
+        try:
+            os.mkdir('cache')
+        except OSError:
+            pass
+
+    @staticmethod
+    def cache(filename, func):
+        path = os.path.join('cache',filename)
+        if not os.path.exists(path):
+            open(path, 'x').write(func())
+        return open(path).read()
+
+    def videoadmin(self):
+        raw = self.cache('videoadmin', lambda: self.s.get(url('/videoadmin/')).text)
+        html = fromstring(raw)
+        return html
