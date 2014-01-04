@@ -115,8 +115,6 @@ def randomsleep():
 
 def main():
     s = Suhaila()
-    s.get('http://www.suhailaonlineclasses.com/videos/mp4/1120.mp4', parse_html = False)
-    return
     for a in s.videoadmin():
         print(a)
         for b in s.category(a):
